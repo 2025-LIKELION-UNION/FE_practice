@@ -149,3 +149,26 @@ npm run preview
 
   </div>
 </details>
+
+<details>
+  <summary><h2>🚀 [실습] CI/CD 구축</h2></summary>
+  <div markdown="1">
+
+**1️⃣ `.env`파일 내용 GitHub Screats 등록하기**
+```
+VITE_ID = likelion
+VITE_PW = likelion1234
+```
+
+<br>
+
+**2️⃣ 워크플로우 작성하기**
+> `.github/workflows/cicd.yml` 파일 내 주석 해제하고 수정하세요!
+
+<br>
+
+**3️⃣ `main`브랜치에 push하고 GitHub Action 확인하기**
+> S3와 Cloudfront에서도 확인해보기!
+
+  </div>
+</details>

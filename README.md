@@ -9,7 +9,7 @@
 | **14:30 ~ 15:50** | 💫 S3 + Cloudfront 배포 |
 | **15:50 ~ 16:10** | 💭 쉬는 시간 |
 | **16:10 ~ 17:10** | ⚡️ CI/CD 구축 |
-| **17:30 ~** | 🍻 Beer Networking |
+| <strong>17:30 ~</strong> | 🍻 Beer Networking |
 
 <br>
 
@@ -163,7 +163,63 @@ VITE_PW = likelion1234
 <br>
 
 **2️⃣ 워크플로우 작성하기**
-> `.github/workflows/cicd.yml` 파일 내 주석 해제하고 수정하세요!
+> `.github/workflows/cicd.yml` 파일을 생성해서 작성해주세요!
+```
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Set Environment Variables
+        run: |
+          echo "VITE_ID=${{ secrets.VITE_ID }}" >> .env
+          echo "VITE_PW=${{ secrets.VITE_PW }}" >> .env
+
+      - name: Build
+        run: npm run build --mode production
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to S3
+        run: aws s3 sync ./build s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+
+      - name: Invalidate CloudFront
+        uses: chetan/invalidate-cloudfront-action@master
+        env:
+          PATHS: '/*'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          DISTRIBUTION: ${{ secrets.DEV_AWS_DISTRIBUTION_ID }}
+```
 
 <br>
 

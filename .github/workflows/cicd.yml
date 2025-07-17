@@ -26,7 +26,7 @@ jobs:
           echo "VITE_PW=${{ secrets.VITE_PW }}" >> .env
             
       - name: Build project
-        run: npm run build --mode production
+        run: npm run build --mode
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
